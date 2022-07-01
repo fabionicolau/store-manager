@@ -8,7 +8,17 @@ const getProducts = async (_req, res) => {
   
     res.status(products.status).json(products.message);
   } catch (error) {
-    console.log(error);
+    res.status(500).json({ message: status500Message });
+  }
+};
+
+const getProductsByQuery = async (req, res) => {
+  try {
+    const { q } = req.query;
+    const products = await productsService.getProductsByQuery(`${q}%`);
+
+    res.status(products.status).json(products.message);
+  } catch (error) {
     res.status(500).json({ message: status500Message });
   }
 };
@@ -20,7 +30,6 @@ const getProductsById = async (req, res) => {
 
     res.status(products.status).json(products.message);
   } catch (error) {
-    console.log(error);
     res.status(500).json({ message: status500Message });
   }
 };
@@ -32,7 +41,6 @@ const addProducts = async (req, res) => {
 
     res.status(products.status).json(products.message);
   } catch (error) {
-    console.log(error);
     res.status(500).json({ message: status500Message });
   }
 };
@@ -46,7 +54,6 @@ const updateProducts = async (req, res) => {
 
     res.status(products.status).json(products.message);
   } catch (error) {
-    console.log(error);
     res.status(500).json({ message: status500Message });
   }
 };
@@ -58,7 +65,6 @@ const deleteProducts = async (req, res) => {
     const products = await productsService.deleteProducts(id);
     res.status(products.status).json(products.message);
   } catch (error) {
-    console.log(error);
     res.status(500).json({ message: status500Message });
   }
 };
@@ -69,4 +75,5 @@ module.exports = {
   addProducts,
   updateProducts,
   deleteProducts,
+  getProductsByQuery,
 };

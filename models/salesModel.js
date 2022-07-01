@@ -2,7 +2,8 @@ const connection = require('../helpers/connection');
 
 const produtsExistsValidation = async (sales) => {
   const products = Promise.all(sales.map(async ({ productId }) => {
-    const [product] = await connection.execute('SELECT * FROM products WHERE id = ?', [productId]);
+    const [product] = await connection
+      .execute('SELECT * FROM products WHERE id = ?', [productId]);
     return product;
   }));
   const productNotFound = await (await products).some((product) => product.length === 0);
@@ -58,9 +59,18 @@ const getSalesById = async (id) => {
     quantity: product.quantity,
   }));
 };
+
+const deleteSales = async (id) => {
+  await connection
+    .execute('DELETE FROM StoreManager.sales WHERE id = ?', [id]);
+  await connection
+    .execute('DELETE FROM StoreManager.sales_products WHERE sale_id = ?', [id]);
+};
+
 module.exports = {
   getSales,
   getSalesById,
   addSales,
   produtsExistsValidation,
+  deleteSales,
 };

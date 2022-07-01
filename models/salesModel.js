@@ -1,5 +1,30 @@
 const connection = require('../helpers/connection');
 
+const produtsExistsValidation = async (sales) => {
+  const products = Promise.all(sales.map(async ({ productId }) => {
+    const [product] = await connection.execute('SELECT * FROM products WHERE id = ?', [productId]);
+    return product;
+  }));
+  const productNotFound = await (await products).some((product) => product.length === 0);
+  return productNotFound;
+};
+
+const addSales = async (sales) => {
+  const insertDateQuery = 'INSERT INTO StoreManager.sales (date) VALUES (CURRENT_TIMESTAMP())';
+  const [{ insertId }] = await connection.execute(insertDateQuery);
+
+  await Promise.all(sales.map(async ({ productId, quantity }) => {
+    const insertSaleQuery = 'INSERT INTO StoreManager.sales_products '
+      + '(sale_id, product_id, quantity) VALUES (?, ?, ?)';
+    await connection.execute(insertSaleQuery, [insertId, productId, quantity]);
+  }));
+  
+  return {
+    id: insertId,
+    itemsSold: sales,
+  };
+};
+
 const getSales = async () => {
   const query = 'SELECT salesProducts.sale_id, sales.date, salesProducts.product_id, '
     + 'salesProducts.quantity FROM StoreManager.sales AS sales '
@@ -36,4 +61,6 @@ const getSalesById = async (id) => {
 module.exports = {
   getSales,
   getSalesById,
+  addSales,
+  produtsExistsValidation,
 };

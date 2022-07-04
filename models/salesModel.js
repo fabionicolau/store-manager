@@ -1,6 +1,6 @@
 const connection = require('../helpers/connection');
 
-const produtsExistsValidation = async (sales) => {
+const productsExistsValidation = async (sales) => {
   const products = Promise.all(sales.map(async ({ productId }) => {
     const [product] = await connection
       .execute('SELECT * FROM products WHERE id = ?', [productId]);
@@ -71,6 +71,6 @@ module.exports = {
   getSales,
   getSalesById,
   addSales,
-  produtsExistsValidation,
+  productsExistsValidation,
   deleteSales,
 };

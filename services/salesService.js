@@ -25,7 +25,7 @@ const addSales = async (sales) => {
     return itemsValidations;
   }
 
-  const productNotFound = await salesModel.produtsExistsValidation(sales);
+  const productNotFound = await salesModel.productsExistsValidation(sales);
   if (productNotFound) {
     return {
       message: { message: 'Product not found' },

@@ -28,6 +28,29 @@ describe('Model',  () => {
     });
   });
 
+  describe('Será validado se é possível buscar um produto pela query', () => {
+    const query = 'Martelo'
+    const product = mockAllProducts.find(product => product.name.includes(query))
+    before(async () => {
+      sinon.stub(connection, 'execute').resolves([[product]])
+    })
+    after(async () => {
+      connection.execute.restore()
+    })
+
+    it('Verifica se retorna um array', async () => {
+      const response = await productsModel.getProductsByQuery(query);
+      expect(response).to.be.an('array').with.length(1);
+    })
+
+    it('Verifica se retorna o produto buscado', async () => {
+      const response = await productsModel.getProductsByQuery(query);
+      expect(response[0]).to.have.property('id');
+      expect(response[0]).to.have.property('name');
+      expect(response[0]).to.deep.equal(product);
+    })
+  })
+
   describe('Será validado se é possível listar um produto pelo seu ID', () => {  
     const id = 3
     before(async () => {
@@ -71,6 +94,32 @@ describe('Model',  () => {
 
     it('Tal objeto possui o id do novo produto inserido', async  () => {
       const response = await productsModel.addProducts(product);
+      expect(response).to.have.property('id');
+      expect(response).to.have.property('name');
+    })
+  })
+
+  describe('Será validado se é possível atualizar um produto', () => { 
+    before(async () => {
+      sinon.stub(connection, 'execute').resolves([{
+        id: 1,
+        name: 'teste'
+      }])
+    })
+
+    after(async () => {
+      connection.execute.restore()
+    }
+    )
+
+    it('Quando é inserido com sucesso', async  () => {
+      const response = await productsModel.addProducts(1, 'teste');
+      expect(response).to.be.a('object');
+    }
+    )
+
+    it('Tal objeto possui o id do novo produto inserido', async  () => {
+      const response = await productsModel.addProducts(1, 'teste');
       expect(response).to.have.property('id');
       expect(response).to.have.property('name');
     })

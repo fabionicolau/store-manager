@@ -21,6 +21,7 @@ app.delete('/products/:id', productsController.deleteProducts);
 app.get('/sales', salesController.getSales);
 app.get('/sales/:id', salesController.getSalesById);
 app.post('/sales', salesController.addSales);
+app.put('/sales/:id', salesController.updateSales);
 app.delete('/sales/:id', salesController.deleteSales);
 
 // não remova essa exportação, é para o avaliador funcionar

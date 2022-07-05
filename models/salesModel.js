@@ -10,6 +10,11 @@ const productsExistsValidation = async (sales) => {
   return productNotFound;
 };
 
+const salesExistsValidation = async (id) => {
+  const [sales] = await connection.execute('SELECT * FROM sales WHERE id = ?', [id]);
+  return sales.length === 0;
+};
+
 const addSales = async (sales) => {
   const insertDateQuery = 'INSERT INTO StoreManager.sales (date) VALUES (CURRENT_TIMESTAMP())';
   const [{ insertId }] = await connection.execute(insertDateQuery);
@@ -23,6 +28,19 @@ const addSales = async (sales) => {
   return {
     id: insertId,
     itemsSold: sales,
+  };
+};
+
+const updateSales = async (id, sales) => {
+  await Promise.all(sales.map(async ({ productId, quantity }) => {
+    const updateQuery = 'UPDATE StoreManager.sales_products SET quantity = ?' 
+    + ' WHERE sale_id = ? AND product_id = ?';
+    await connection.execute(updateQuery, [quantity, id, productId]);
+  }));
+
+  return {
+    saleId: id, 
+    itemsUpdated: sales,
   };
 };
 
@@ -72,5 +90,7 @@ module.exports = {
   getSalesById,
   addSales,
   productsExistsValidation,
+  salesExistsValidation,
   deleteSales,
+  updateSales,
 };

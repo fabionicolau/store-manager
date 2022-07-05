@@ -1,24 +1,6 @@
 const salesModel = require('../models/salesModel');
-
-const itemsSoldValidations = (sale) => Promise.all(sale.map(({ productId, quantity }) => {
-    if (!productId) {
-      return { message: { message: '"productId" is required' },
-        status: 400,
-      };
-    }
-    if (quantity < 1) {
-      return { message: { message: '"quantity" must be greater than or equal to 1' },
-        status: 422,
-      };
-    }
-    if (!quantity) {
-      return { message: { message: '"quantity" is required' },
-        status: 400,
-      };
-    }
-    return false;
-  }));
-
+const itemsSoldValidations = require('../middlewares/itemsSoldValidation');
+  
 const addSales = async (sales) => {
   const itemsValidations = await (await itemsSoldValidations(sales)).find((item) => item.message);
   if (itemsValidations) {
@@ -38,6 +20,29 @@ const addSales = async (sales) => {
   return {
     status: 201,
     message: finalSale,
+  };
+};
+
+const updateSales = async (id, sales) => {
+  const itemsValidations = await (await itemsSoldValidations(sales)).find((item) => item.message);
+  if (itemsValidations) {
+    return itemsValidations;
+  }
+  const productNotFound = await salesModel.productsExistsValidation(sales);
+  if (productNotFound) {
+    return { message: { message: 'Product not found' }, status: 404,
+    };
+  }
+  const saleNotFound = await salesModel.salesExistsValidation(id);
+  if (saleNotFound) {
+    return { message: { message: 'Sale not found' }, status: 404 };
+  }
+  
+  const updateSale = await salesModel.updateSales(id, sales);
+  
+  return {
+    status: 200,
+    message: updateSale,
   };
 };
 
@@ -91,4 +96,5 @@ module.exports = {
   addSales,     
   itemsSoldValidations,
   deleteSales,
+  updateSales,
 };
